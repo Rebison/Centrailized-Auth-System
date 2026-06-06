@@ -5,6 +5,7 @@ export const ERROR_TYPES = Object.freeze({
     PERMISSION: "permission_error",
     NOT_FOUND: "not_found_error",
     CONFLICT: "conflict_error",
+    LOCKED: "locked_error",
     RATE_LIMIT: "rate_limit_error",
     EXTERNAL: "external_error",
     INTERNAL: "internal_error",
@@ -40,6 +41,12 @@ class AppError extends Error {
         });
     }
 
+    /**
+     * Creates an AppError instance representing a "Bad Request" error, typically used when the client sends invalid or incomplete data in an API request. This method allows for a standardized way to generate error responses for various validation issues, such as missing required fields, invalid formats, or other client-side errors.
+     * @param {string} message - Error message to be returned to the client 
+     * @param {Object|null} details - Optional additional details about the error (e.g., validation errors, field info, etc.)
+     * @returns - An instance of AppError with the provided message and details, ready to be thrown or returned in an API response.
+     */
     static badRequest(message = "Bad Request", details = null) {
         return new AppError({
             message,
@@ -50,6 +57,12 @@ class AppError extends Error {
         });
     }
 
+    /**
+     * Creates an AppError instance representing a "File Upload" error, typically used when the client fails to upload a file.
+     * @param {string} message - Error message to be returned to the client
+     * @param {Object|null} details - Optional additional details about the error
+     * @returns - An instance of AppError with the provided message and details, ready to be thrown or returned in an API response.
+     */
     static fileUpload(message = "File upload failed", details = null) {
         return new AppError({
             message,
@@ -110,6 +123,12 @@ class AppError extends Error {
         });
     }
 
+    /**
+     * Creates an AppError instance representing a "Not Found" error for a specific resource. This method is useful for standardizing the error response when a requested resource (e.g., user, product, etc.) cannot be found in the database or does not exist.
+     * @param {string} resource - The resource that was not found
+     * @param {object|null} details - Optional additional details about the error
+     * @returns - An instance of AppError indicating the resource was not found
+     */
     static notFound(resource = "Resource Not Found", details = null) {
         return new AppError({
             message: `${resource}`,
@@ -131,7 +150,11 @@ class AppError extends Error {
         });
     }
 
-    // 🔹 Mongo Duplicate Key
+    /**
+     * Handles MongoDB duplicate key errors and converts them into a standardized AppError format.
+     * @param {object} err - The original error object thrown by MongoDB, which contains information about the duplicate key violation (e.g., the field and value that caused the conflict).
+     * @returns - An instance of AppError with a 409 status code, a conflict error type, and a message indicating which field and value caused the duplication issue. The details property includes the specific field and value for easier debugging and client-side handling.
+     */
     static duplicateKey(err) {
         const field = Object.keys(err.keyValue)[0];
         const value = err.keyValue[field];
@@ -142,6 +165,16 @@ class AppError extends Error {
             type: ERROR_TYPES.CONFLICT,
             code: "DUPLICATE_KEY",
             details: { field, value },
+        });
+    }
+
+    static locked(message = "Resource is locked", details = null) {
+        return new AppError({
+            message,
+            statusCode: 423,
+            type: ERROR_TYPES.LOCKED,
+            code: "RESOURCE_LOCKED",
+            details,
         });
     }
 

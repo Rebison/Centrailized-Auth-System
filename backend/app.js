@@ -1,10 +1,10 @@
 import express from "express";
-import { errorHandler } from "./middlewares/errorHandler.js";
+import { errorHandler } from "./src/middlewares/errorHandler.js";
 import morgan from "morgan";
-import responseMiddleware from "./middlewares/response.js";
-import requestId from "./middlewares/requestId.js";
-import httpLogger from "./middlewares/httpLogger.js";
-import AppError from "./utils/AppError.js";
+import responseMiddleware from "./src/middlewares/response.js";
+import requestId from "./src/middlewares/requestId.js";
+import httpLogger from "./src/middlewares/httpLogger.js";
+import AppError from "./src/utils/AppError.js";
 
 const isProduction = process.env.NODE_ENV === "production";
 
